@@ -27,25 +27,23 @@ keyboxFormatter = """<?xml version="1.0"?>
 </AndroidAttestation>"""
 
 
-def execute(commandline:str) -> int|None:
+import subprocess
+
+def execute(commandline: str) -> int:
 	if isinstance(commandline, str):
 		print("$ " + commandline)
-		return os.system(commandline)
-	else:
-		return None
+		result = subprocess.run(commandline, shell=True)
+		return result.returncode
+	return -1
 
-def handleOpenSSL(flag:bool = True) -> bool|None:
-	if isinstance(flag, bool):
-		errorLevel = execute("openssl version")
-		if EXIT_SUCCESS == errorLevel:
-			return True
-		elif flag: # can try again
-			execute("sudo apt-get install openssl libssl-dev")
-			return handleOpenSSL(False)
-		else:
-			return False
-	else:
-		return None
+
+def handleOpenSSL() -> bool:
+	try:
+		result = subprocess.run(["openssl", "version"], capture_output=True)
+		return result.returncode == 0
+	except:
+		return False
+
 
 def pressTheEnterKeyToExit(errorLevel:int|None = None):
 	try:
